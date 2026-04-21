@@ -1,1265 +1,909 @@
 <!DOCTYPE html>
-
 <html lang="fr">
-
 <head>
-
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>96qsw</title>
-
- <meta property="og:title" content="96qsw — Discord Bot Developer">
-<meta property="og:description" content="Développeur de bots Discord. Selfbots, automatisation, outils open-source.">
-<meta property="og:image" content="https://cdn.discordapp.com/attachments/...">
-<meta property="og:url" content="https://96qsw.github.io/">
-<meta property="og:type" content="website">
-
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://cdn.discordapp.com/attachments/1020670342324301854/1495570497344373007/image.png?ex=69e6ba10&is=69e56890&hm=df6d4fa069c969f2aad47f7da79b8b0c33aee5f8bb8bdd1c09caf42273cdcf2a&animated=true">
-
+  <title>96qsw — Discord Bot Developer</title>
+  <meta property="og:title" content="96qsw — Discord Bot Developer">
+  <meta property="og:description" content="Développeur de bots Discord. Selfbots, automatisation, outils open-source.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-
-      --black: #0a0a0a;
-
-      --white: #f5f5f0;
-
-      --grey: #888;
-
+      --black: #080808;
+      --white: #f0ede8;
+      --grey: #666;
+      --accent: #e8d5b0;
+      --dim: #1a1a1a;
       --mono: 'DM Mono', monospace;
-
       --sans: 'Syne', sans-serif;
-
     }
-
     html { scroll-behavior: smooth; }
-
     body { background: var(--black); color: var(--white); font-family: var(--sans); line-height: 1.5; overflow-x: hidden; cursor: none; }
-
     ::selection { background: var(--white); color: var(--black); }
-
-    ::-webkit-scrollbar { width: 4px; }
-
+    ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
 
-    ::-webkit-scrollbar-thumb { background: #333; }
-
-    a, button, .copy-email { cursor: none; }
-
+    /* ── Cursor ── */
     #cursor-dot {
-
-      position: fixed;
-
-      width: 5px; height: 5px;
-
-      background: var(--white);
-
-      border-radius: 50%;
-
-      pointer-events: none;
-
-      z-index: 9999;
-
-      transform: translate(-50%, -50%);
-
-      transition: width 0.15s, height 0.15s, opacity 0.15s;
-
-      mix-blend-mode: difference;
-
+      position: fixed; width: 5px; height: 5px; background: var(--white); border-radius: 50%;
+      pointer-events: none; z-index: 9999; transform: translate(-50%,-50%);
+      transition: width .15s, height .15s, opacity .15s; mix-blend-mode: difference;
     }
-
     #cursor-outline {
-
-      position: fixed;
-
-      width: 36px; height: 36px;
-
-      border: 1px solid rgba(245,245,240,0.2);
-
-      border-radius: 50%;
-
-      pointer-events: none;
-
-      z-index: 9998;
-
-      transform: translate(-50%, -50%);
-
-      transition: width 0.25s cubic-bezier(0.16,1,0.3,1),
-
-                  height 0.25s cubic-bezier(0.16,1,0.3,1),
-
-                  border-color 0.25s,
-
-                  border-radius 0.25s;
-
+      position: fixed; width: 36px; height: 36px; border: 1px solid rgba(240,237,232,.18); border-radius: 50%;
+      pointer-events: none; z-index: 9998; transform: translate(-50%,-50%);
+      transition: width .25s cubic-bezier(.16,1,.3,1), height .25s cubic-bezier(.16,1,.3,1), border-color .25s, border-radius .25s;
     }
-
     #cursor-dot.is-hovering { width: 0; height: 0; opacity: 0; }
+    #cursor-outline.is-hovering { border-color: rgba(240,237,232,.5); border-radius: 3px; width: 40px; height: 40px; }
+    #cursor-outline.is-clicking { width: 28px; height: 28px; border-color: rgba(240,237,232,.8); }
 
-    #cursor-outline.is-hovering {
-
-        width: 36px; height: 36px;
-
-      border-color: rgba(245,245,240,0.5);
-
-      border-radius: 4px;
-
-    }
-
-    #cursor-outline.is-clicking {
-
-      width: 28px; height: 28px;
-
-      border-color: rgba(245,245,240,0.8);
-
-    }
-
+    /* ── Toast ── */
     #toast {
-
       position: fixed; bottom: 2rem; left: 50%;
-
       transform: translateX(-50%) translateY(16px);
-
-      background: #111; border: 1px solid #1e1e1e;
-
-      color: #555; font-family: var(--mono); font-size: 0.68rem;
-
-      padding: 0.65rem 1.3rem; z-index: 9000;
-
-      opacity: 0; transition: opacity 0.3s, transform 0.3s;
-
-      pointer-events: none; letter-spacing: 0.05em; white-space: nowrap;
-
+      background: #0f0f0f; border: 1px solid #1c1c1c; color: #555;
+      font-family: var(--mono); font-size: .66rem;
+      padding: .6rem 1.2rem; z-index: 9000; opacity: 0;
+      transition: opacity .3s, transform .3s; pointer-events: none; letter-spacing: .06em;
     }
-
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    /* ── Boot ── */
     #boot {
-
       position: fixed; inset: 0; background: var(--black); z-index: 999;
-
       display: flex; flex-direction: column; justify-content: center;
-
-      align-items: flex-start; padding: 12vw; font-family: var(--mono);
-
-      transition: opacity 0.6s ease;
-
+      align-items: flex-start; padding: 10vw; font-family: var(--mono);
+      transition: opacity .7s ease;
     }
-
     #boot.out { opacity: 0; pointer-events: none; }
-
-    .boot-name { font-family: var(--sans); font-size: clamp(3rem,10vw,7rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin-bottom: 3rem; overflow: hidden; }
-
-    .boot-name span { display: inline-block; transform: translateY(110%); transition: transform 0.7s cubic-bezier(0.16,1,0.3,1); }
-
+    .boot-name { font-family: var(--sans); font-size: clamp(3rem,10vw,7rem); font-weight: 800; letter-spacing: -.03em; line-height: 1; margin-bottom: 2.5rem; overflow: hidden; }
+    .boot-name span { display: inline-block; transform: translateY(110%); transition: transform .7s cubic-bezier(.16,1,.3,1); }
     .boot-name span.up { transform: translateY(0); }
-
-    .boot-log { font-size: 0.75rem; color: var(--grey); line-height: 2; opacity: 0; transition: opacity 0.4s; }
-
+    .boot-log { font-size: .72rem; color: var(--grey); line-height: 2.2; opacity: 0; transition: opacity .4s; }
     .boot-log.show { opacity: 1; }
-
-    .boot-log p { opacity: 0; transform: translateX(-8px); transition: opacity 0.3s, transform 0.3s; }
-
+    .boot-log p { opacity: 0; transform: translateX(-8px); transition: opacity .3s, transform .3s; }
     .boot-log p.visible { opacity: 1; transform: none; }
-
-    .boot-bar-wrap { margin-top: 2.5rem; width: 200px; height: 1px; background: #222; overflow: hidden; opacity: 0; transition: opacity 0.4s 0.3s; }
-
+    .boot-log .t-ok { color: #4a7a4a; }
+    .boot-bar-wrap { margin-top: 2rem; width: 180px; height: 1px; background: #1a1a1a; overflow: hidden; opacity: 0; transition: opacity .4s .3s; }
     .boot-bar-wrap.show { opacity: 1; }
+    .boot-bar { height: 100%; background: var(--white); width: 0%; transition: width .3s; }
 
-    .boot-bar { height: 100%; background: var(--white); width: 0%; transition: width 0.3s; }
-
-    #main { opacity: 0; transition: opacity 0.8s; }
-
+    /* ── Main ── */
+    #main { opacity: 0; transition: opacity .8s; }
     #main.visible { opacity: 1; }
 
+    /* ── Nav ── */
     nav {
-
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-
-      padding: 1.5rem 3rem; display: flex; align-items: center;
-
-      justify-content: space-between; mix-blend-mode: difference;
-
+      padding: 1.4rem 3rem; display: flex; align-items: center; justify-content: space-between;
     }
-
-    .nav-logo { font-family: var(--sans); font-weight: 700; font-size: 1rem; letter-spacing: -0.02em; color: var(--white); }
-
-    .nav-links { display: flex; gap: 2rem; align-items: center; }
-
-    .nav-links a { font-family: var(--mono); font-size: 0.7rem; color: var(--grey); text-decoration: none; letter-spacing: 0.05em; text-transform: uppercase; transition: color 0.2s; }
-
+    nav::after {
+      content: ''; position: absolute; bottom: 0; left: 3rem; right: 3rem;
+      height: 1px; background: linear-gradient(90deg, transparent, #1e1e1e 30%, #1e1e1e 70%, transparent);
+    }
+    .nav-logo { font-family: var(--sans); font-weight: 800; font-size: .95rem; letter-spacing: -.02em; color: var(--white); }
+    .nav-links { display: flex; gap: 1.8rem; align-items: center; }
+    .nav-links a { font-family: var(--mono); font-size: .65rem; color: var(--grey); text-decoration: none; letter-spacing: .06em; text-transform: uppercase; transition: color .2s; }
     .nav-links a:hover { color: var(--white); }
-
-    #nav-clock { font-family: var(--mono); font-size: 0.63rem; color: #2e2e2e; letter-spacing: 0.1em; user-select: none; }
-
-    .lang-btn { font-family: var(--mono); font-size: 0.63rem; background: none; border: 1px solid #222; color: #444; padding: 0.28rem 0.65rem; letter-spacing: 0.1em; transition: border-color 0.2s, color 0.2s; }
-
+    #nav-clock { font-family: var(--mono); font-size: .6rem; color: #2a2a2a; letter-spacing: .1em; }
+    .lang-btn { font-family: var(--mono); font-size: .6rem; background: none; border: 1px solid #1e1e1e; color: #3a3a3a; padding: .25rem .6rem; letter-spacing: .1em; transition: border-color .2s, color .2s; cursor: none; }
     .lang-btn:hover { border-color: var(--white); color: var(--white); }
 
-    #hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 3rem 5rem; position: relative; }
+    /* ── Progress bar ── */
+    #scroll-progress { position: fixed; top: 0; left: 0; height: 1px; background: var(--accent); z-index: 9997; width: 0%; transition: width .1s; }
 
-    .hero-eyebrow { font-family: var(--mono); font-size: 0.7rem; color: var(--grey); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1.5rem; }
-
-    .hero-title { font-size: clamp(4rem,14vw,11rem); font-weight: 800; letter-spacing: -0.04em; line-height: 0.9; margin-bottom: 2.5rem; }
-
+    /* ── Hero ── */
+    #hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 3rem 5rem; position: relative; overflow: hidden; }
+    .hero-bg {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+    }
+    .hero-bg-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 0%, transparent 80%);
+      opacity: .4;
+    }
+    .hero-bg-glow {
+      position: absolute; width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,213,176,.04) 0%, transparent 70%);
+      top: 10%; right: -100px; pointer-events: none;
+    }
+    .hero-eyebrow { font-family: var(--mono); font-size: .68rem; color: var(--grey); letter-spacing: .18em; text-transform: uppercase; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .8rem; }
+    .hero-eyebrow::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--grey); }
+    .hero-title { font-size: clamp(4rem,14vw,11rem); font-weight: 800; letter-spacing: -.04em; line-height: .9; margin-bottom: 2.5rem; }
     .hero-title .line { display: block; overflow: hidden; }
-
-    .hero-title .line span { display: block; transform: translateY(110%); transition: transform 0.9s cubic-bezier(0.16,1,0.3,1); }
-
+    .hero-title .line span { display: block; transform: translateY(110%); transition: transform .9s cubic-bezier(.16,1,.3,1); }
     .hero-title .line span.up { transform: translateY(0); }
-
-    .hero-sub { font-family: var(--mono); font-size: 0.85rem; color: var(--grey); max-width: 400px; line-height: 1.7; margin-bottom: 3rem; border-left: 1px solid #2a2a2a; padding-left: 1rem; min-height: 1.7em; }
-
-    .cursor-blink { display: inline-block; width: 6px; height: 0.85em; background: var(--white); margin-left: 2px; vertical-align: middle; animation: blink 1s step-end infinite; }
-
+    .hero-sub { font-family: var(--mono); font-size: .82rem; color: var(--grey); max-width: 420px; line-height: 1.8; margin-bottom: 3rem; border-left: 1px solid #1e1e1e; padding-left: 1.2rem; min-height: 1.7em; }
+    .cursor-blink { display: inline-block; width: 6px; height: .85em; background: var(--accent); margin-left: 2px; vertical-align: middle; animation: blink 1s step-end infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
     .hero-ctas { display: flex; gap: 1rem; align-items: center; }
-
-    .btn { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; padding: 0.8rem 1.6rem; border: 1px solid; transition: background 0.2s, color 0.2s; display: inline-block; }
-
+    .btn { font-family: var(--mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; padding: .75rem 1.5rem; border: 1px solid; transition: background .2s, color .2s, border-color .2s; display: inline-block; cursor: none; }
     .btn-white { background: var(--white); color: var(--black); border-color: var(--white); }
-
     .btn-white:hover { background: transparent; color: var(--white); }
-
-    .btn-outline { background: transparent; color: var(--grey); border-color: #333; }
-
+    .btn-outline { background: transparent; color: var(--grey); border-color: #282828; }
     .btn-outline:hover { border-color: var(--white); color: var(--white); }
-
-    .btn-sm { font-size: 0.65rem; padding: 0.5rem 1rem; }
-
-    .hero-scroll { position: absolute; bottom: 2.5rem; right: 3rem; font-family: var(--mono); font-size: 0.65rem; color: var(--grey); letter-spacing: 0.1em; text-transform: uppercase; writing-mode: vertical-rl; display: flex; align-items: center; gap: 0.8rem; }
-
-    .hero-scroll::before { content:''; display:block; width:1px; height:60px; background:#333; animation: scrollLine 2s ease infinite; }
-
+    .btn-accent { background: transparent; color: var(--accent); border-color: rgba(232,213,176,.3); }
+    .btn-accent:hover { background: rgba(232,213,176,.08); border-color: var(--accent); }
+    .btn-sm { font-size: .62rem; padding: .45rem .9rem; }
+    .hero-scroll { position: absolute; bottom: 2.5rem; right: 3rem; font-family: var(--mono); font-size: .62rem; color: #2a2a2a; letter-spacing: .1em; text-transform: uppercase; writing-mode: vertical-rl; display: flex; align-items: center; gap: .8rem; }
+    .hero-scroll::before { content:''; display:block; width:1px; height:60px; background:#1e1e1e; animation: scrollLine 2s ease infinite; }
     @keyframes scrollLine { 0%{transform:scaleY(1);transform-origin:top} 50%{transform:scaleY(0);transform-origin:top} 51%{transform:scaleY(0);transform-origin:bottom} 100%{transform:scaleY(1);transform-origin:bottom} }
+    .hero-stats { position: absolute; top: 50%; right: 3rem; transform: translateY(-50%); display: flex; flex-direction: column; gap: 1.5rem; }
+    .hero-stat-item { text-align: right; }
+    .hero-stat-num { font-size: 1.8rem; font-weight: 800; letter-spacing: -.03em; color: var(--white); line-height: 1; }
+    .hero-stat-label { font-family: var(--mono); font-size: .58rem; color: #333; letter-spacing: .12em; text-transform: uppercase; margin-top: .2rem; }
 
-    .divider { height: 1px; background: #161616; max-width: 1100px; margin: 0 auto; }
-
+    /* ── Sections ── */
+    .divider { height: 1px; background: #111; max-width: 1100px; margin: 0 auto; }
     section { padding: 6rem 3rem; max-width: 1100px; margin: 0 auto; }
+    .section-label { font-family: var(--mono); font-size: .62rem; color: var(--grey); letter-spacing: .22em; text-transform: uppercase; margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem; }
+    .section-label::after { content:''; flex:1; height:1px; background:#111; max-width:200px; }
 
-    .section-label { font-family: var(--mono); font-size: 0.65rem; color: var(--grey); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem; }
+    /* ── Terminal ── */
+    .terminal { background: var(--black); border: 1px solid #151515; }
+    .terminal-bar { padding: .75rem 1.2rem; border-bottom: 1px solid #111; display: flex; align-items: center; gap: .6rem; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .dot-r{background:#2a2a2a} .dot-y{background:#252525} .dot-g{background:#1e1e1e}
+    .terminal-title { font-family: var(--mono); font-size: .62rem; color: #303030; margin-left: .5rem; letter-spacing: .05em; }
+    .terminal-hint { margin-left: auto; font-size: .56rem; color: #1e1e1e; letter-spacing: .08em; border: 1px solid #181818; padding: .12rem .45rem; font-family: var(--mono); }
+    .terminal-body { padding: 1.5rem; min-height: 280px; max-height: 380px; overflow-y: auto; line-height: 1.9; font-family: var(--mono); font-size: .78rem; }
+    .terminal-body::-webkit-scrollbar{width:2px} .terminal-body::-webkit-scrollbar-thumb{background:#1a1a1a}
+    .t-prompt{color:#333} .t-cmd{color:var(--white)} .t-out{color:#3e3e3e} .t-accent{color:#aaa} .t-dim{color:#282828} .t-ok{color:#3a5a3a}
+    .t-link{color:#555;text-decoration:underline;text-decoration-color:#282828} .t-link:hover{color:var(--white)}
+    .t-yellow{color:var(--accent)} .t-err{color:#5a3a3a}
+    .terminal-input-row { padding: .75rem 1.5rem; border-top: 1px solid #111; display: flex; align-items: center; gap: .6rem; }
+    .terminal-input { background: none; border: none; outline: none; color: var(--white); font-family: var(--mono); font-size: .78rem; flex: 1; caret-color: var(--accent); }
 
-    .section-label::after { content:''; flex:1; height:1px; background:#161616; max-width:200px; }
-
-    .terminal { background: var(--black); border: 1px solid #1a1a1a; font-family: var(--mono); font-size: 0.8rem; }
-
-    .terminal-bar { padding: 0.8rem 1.2rem; border-bottom: 1px solid #161616; display: flex; align-items: center; gap: 0.6rem; }
-
-    .dot { width: 10px; height: 10px; border-radius: 50%; }
-
-    .dot-r{background:#2e2e2e} .dot-y{background:#282828} .dot-g{background:#222}
-
-    .terminal-title { font-size: 0.65rem; color: #363636; margin-left: 0.5rem; letter-spacing: 0.05em; }
-
-    .terminal-hint { margin-left: auto; font-size: 0.58rem; color: #252525; letter-spacing: 0.08em; border: 1px solid #1e1e1e; padding: 0.15rem 0.5rem; }
-
-    .terminal-body { padding: 1.5rem; min-height: 280px; max-height: 380px; overflow-y: auto; line-height: 1.8; }
-
-    .terminal-body::-webkit-scrollbar{width:3px} .terminal-body::-webkit-scrollbar-thumb{background:#1e1e1e}
-
-    .t-prompt{color:#444} .t-cmd{color:var(--white)} .t-out{color:#4a4a4a} .t-accent{color:#ccc} .t-dim{color:#333}
-
-    .t-link{color:#666;text-decoration:underline;text-decoration-color:#2e2e2e} .t-link:hover{color:var(--white)}
-
-    .terminal-input-row { padding: 0.8rem 1.5rem; border-top: 1px solid #161616; display: flex; align-items: center; gap: 0.6rem; }
-
-    .terminal-input { background: none; border: none; outline: none; color: var(--white); font-family: var(--mono); font-size: 0.8rem; flex: 1; caret-color: var(--white); }
-
+    /* ── Projects ── */
     .projects-list { display: flex; flex-direction: column; }
-
-    .project-row { display: grid; grid-template-columns: 1fr auto; align-items: start; padding: 2.5rem 0; border-bottom: 1px solid #161616; gap: 2rem; transition: padding-left 0.3s; }
-
-    .project-row:first-child { border-top: 1px solid #161616; }
-
-    .project-row:hover { padding-left: 1rem; }
-
-    .project-num { font-family: var(--mono); font-size: 0.65rem; color: #2a2a2a; margin-bottom: 0.8rem; }
-
-    .project-name { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.6rem; }
-
-    .project-desc { font-family: var(--mono); font-size: 0.75rem; color: var(--grey); line-height: 1.7; max-width: 480px; }
-
-    .project-tags-wrap { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
-
-    .tag { font-family: var(--mono); font-size: 0.62rem; color: #3a3a3a; border: 1px solid #1e1e1e; padding: 0.2rem 0.6rem; letter-spacing: 0.05em; }
-
+    .project-row { display: grid; grid-template-columns: 1fr auto; align-items: start; padding: 2.5rem 0; border-bottom: 1px solid #111; gap: 2rem; transition: padding-left .3s cubic-bezier(.16,1,.3,1); }
+    .project-row:first-child { border-top: 1px solid #111; }
+    .project-row:hover { padding-left: 1.2rem; }
+    .project-num { font-family: var(--mono); font-size: .6rem; color: #252525; margin-bottom: .8rem; letter-spacing: .1em; }
+    .project-name { font-size: 1.7rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: .6rem; }
+    .project-desc { font-family: var(--mono); font-size: .73rem; color: var(--grey); line-height: 1.8; max-width: 500px; }
+    .project-tags-wrap { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: 1rem; }
+    .tag { font-family: var(--mono); font-size: .6rem; color: #383838; border: 1px solid #181818; padding: .18rem .55rem; letter-spacing: .05em; }
     .project-right { text-align: right; flex-shrink: 0; }
-
-    .project-stat { font-family: var(--mono); font-size: 0.7rem; color: #3a3a3a; margin-bottom: 0.3rem; }
-
+    .project-stat { font-family: var(--mono); font-size: .68rem; color: #383838; margin-bottom: .3rem; }
     .project-stat strong, .counter { color: var(--white); font-weight: 400; }
+    .project-badge { display: inline-block; font-family: var(--mono); font-size: .56rem; letter-spacing: .1em; padding: .15rem .5rem; border: 1px solid #1e1e1e; color: #3a5a3a; margin-bottom: .8rem; }
+    .project-links { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1rem; }
 
-    .project-links { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
+    /* ── Skills ── */
+    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+    .skill-group-title { font-family: var(--mono); font-size: .6rem; color: var(--grey); letter-spacing: .18em; text-transform: uppercase; margin-bottom: 1.5rem; }
+    .skill-item { margin-bottom: 1.2rem; }
+    .skill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+    .skill-name { font-family: var(--mono); font-size: .72rem; color: #888; }
+    .skill-pct { font-family: var(--mono); font-size: .62rem; color: #333; }
+    .skill-bar-bg { height: 1px; background: #151515; position: relative; overflow: visible; }
+    .skill-bar-fill { height: 1px; background: var(--white); width: 0%; transition: width 1.2s cubic-bezier(.16,1,.3,1); position: relative; }
+    .skill-bar-fill::after { content: ''; position: absolute; right: -1px; top: -2px; width: 3px; height: 3px; background: var(--accent); border-radius: 50%; opacity: 0; transition: opacity .3s .8s; }
+    .skill-bar-fill.filled::after { opacity: 1; }
 
-    .oss-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #161616; border: 1px solid #161616; }
+    /* ── Timeline ── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: linear-gradient(to bottom, transparent, #1e1e1e 20%, #1e1e1e 80%, transparent); }
+    .timeline-item { position: relative; padding-bottom: 2.5rem; padding-left: 1.5rem; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot { position: absolute; left: -2.35rem; top: .35rem; width: 5px; height: 5px; border-radius: 50%; background: #2a2a2a; border: 1px solid #333; }
+    .timeline-item.active .timeline-dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(232,213,176,.3); }
+    .timeline-date { font-family: var(--mono); font-size: .6rem; color: #2a2a2a; letter-spacing: .1em; margin-bottom: .4rem; }
+    .timeline-title { font-size: 1rem; font-weight: 700; letter-spacing: -.01em; margin-bottom: .4rem; }
+    .timeline-desc { font-family: var(--mono); font-size: .72rem; color: var(--grey); line-height: 1.7; }
 
-    .oss-card { background: var(--black); padding: 2rem; text-decoration: none; color: inherit; transition: background 0.2s; display: block; }
-
-    .oss-card:hover { background: #0d0d0d; }
-
-    .oss-card-num { font-family: var(--mono); font-size: 0.62rem; color: #2a2a2a; margin-bottom: 1.2rem; }
-
-    .oss-card-name { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 0.6rem; }
-
-    .oss-card-desc { font-family: var(--mono); font-size: 0.72rem; color: var(--grey); line-height: 1.6; margin-bottom: 1.5rem; }
-
+    /* ── OSS ── */
+    .oss-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #111; border: 1px solid #111; }
+    .oss-card { background: var(--black); padding: 2rem; text-decoration: none; color: inherit; transition: background .2s; display: block; }
+    .oss-card:hover { background: #0b0b0b; }
+    .oss-card-num { font-family: var(--mono); font-size: .58rem; color: #252525; margin-bottom: 1.2rem; }
+    .oss-card-name { font-size: 1.05rem; font-weight: 700; letter-spacing: -.01em; margin-bottom: .6rem; }
+    .oss-card-desc { font-family: var(--mono); font-size: .7rem; color: var(--grey); line-height: 1.7; margin-bottom: 1.5rem; }
     .oss-card-stats { display: flex; gap: 1.2rem; margin-bottom: 1rem; }
-
-    .gh-stat { font-family: var(--mono); font-size: 0.65rem; color: #333; display: flex; align-items: center; gap: 0.35rem; transition: color 0.2s; }
-
-    .oss-card:hover .gh-stat { color: #555; }
-
-    .gh-stat svg { width: 12px; height: 12px; fill: currentColor; }
-
-    .oss-arrow { font-size: 1rem; color: #2a2a2a; display: block; transition: color 0.2s, transform 0.2s; }
-
+    .gh-stat { font-family: var(--mono); font-size: .62rem; color: #2a2a2a; display: flex; align-items: center; gap: .3rem; transition: color .2s; }
+    .oss-card:hover .gh-stat { color: #444; }
+    .gh-stat svg { width: 11px; height: 11px; fill: currentColor; }
+    .oss-arrow { font-size: .9rem; color: #252525; display: block; transition: color .2s, transform .2s; }
     .oss-card:hover .oss-arrow { color: var(--white); transform: translateX(4px); }
 
-    footer { border-top: 1px solid #161616; padding: 2.5rem 3rem; display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto; }
+    /* ── Contact ── */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .contact-big { font-size: clamp(2rem,6vw,4rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 1.5rem; }
+    .contact-sub { font-family: var(--mono); font-size: .75rem; color: var(--grey); line-height: 1.8; margin-bottom: 2rem; }
+    .contact-links { display: flex; flex-direction: column; gap: .8rem; }
+    .contact-link-item { display: flex; align-items: center; gap: 1rem; padding: 1.2rem 1.5rem; border: 1px solid #111; text-decoration: none; color: inherit; transition: border-color .2s, background .2s; }
+    .contact-link-item:hover { border-color: #2a2a2a; background: #0c0c0c; }
+    .contact-link-label { font-family: var(--mono); font-size: .62rem; color: var(--grey); letter-spacing: .1em; text-transform: uppercase; }
+    .contact-link-val { font-family: var(--mono); font-size: .78rem; color: var(--white); margin-top: .2rem; }
+    .contact-link-arrow { margin-left: auto; font-size: .9rem; color: #252525; transition: color .2s, transform .2s; }
+    .contact-link-item:hover .contact-link-arrow { color: var(--white); transform: translateX(4px); }
 
-    .footer-left { font-family: var(--mono); font-size: 0.7rem; color: #2a2a2a; }
 
+    footer { border-top: 1px solid #0e0e0e; padding: 2rem 3rem; display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto; }
+    .footer-left { font-family: var(--mono); font-size: .65rem; color: #222; }
     .footer-right { display: flex; gap: 1.5rem; align-items: center; }
-
-    .footer-right a { font-family: var(--mono); font-size: 0.7rem; color: #2a2a2a; text-decoration: none; transition: color 0.2s; }
-
+    .footer-right a { font-family: var(--mono); font-size: .65rem; color: #222; text-decoration: none; transition: color .2s; cursor: none; }
     .footer-right a:hover { color: var(--white); }
-
-    .copy-email { font-family: var(--mono); font-size: 0.7rem; color: #2a2a2a; transition: color 0.2s; position: relative; }
-
+    .copy-email { font-family: var(--mono); font-size: .65rem; color: #222; transition: color .2s; position: relative; cursor: none; }
     .copy-email:hover { color: var(--white); }
 
-    .copy-email::after { content: attr(data-tip); position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid #222; padding: 0.25rem 0.6rem; font-size: 0.58rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; letter-spacing: 0.06em; color: var(--grey); }
-
-    .copy-email:hover::after { opacity: 1; }
-
+ 
     #matrix-overlay { position: fixed; inset: 0; background: #000; z-index: 888; display: none; overflow: hidden; }
-
     #matrix-canvas { display: block; }
+    #matrix-close { position: absolute; top: 1.5rem; right: 2rem; font-family: var(--mono); font-size: .72rem; color: #0f0; background: none; border: 1px solid #0a3a0a; padding: .4rem 1rem; transition: background .2s; cursor: none; }
+    #matrix-close:hover { background: rgba(0,255,0,.05); }
 
-    #matrix-close { position: absolute; top: 1.5rem; right: 2rem; font-family: var(--mono); font-size: 0.75rem; color: #0f0; background: none; border: 1px solid #0a3a0a; padding: 0.4rem 1rem; transition: background 0.2s; }
+   
+    .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #2a5a2a; margin-right: .5rem; animation: pulse-green 2s ease infinite; }
+    @keyframes pulse-green { 0%,100%{box-shadow:0 0 0 0 rgba(42,90,42,.4)} 50%{box-shadow:0 0 0 4px rgba(42,90,42,0)} }
+    .status-text { font-family: var(--mono); font-size: .6rem; color: #2a5a2a; letter-spacing: .1em; }
 
-    #matrix-close:hover { background: rgba(0,255,0,0.05); }
+  
+    .noise-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 9996; opacity: .03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); background-size: 200px; }
 
+    /* ── Responsive ── */
     @media (max-width: 900px) {
       .oss-grid { grid-template-columns: 1fr 1fr; }
+      .skills-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .hero-stats { display: none; }
     }
-
     @media (max-width: 768px) {
-
       body { cursor: auto; }
-
       #cursor-dot, #cursor-outline { display: none; }
-
       nav, #hero, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
-
       section { padding-left: 1.5rem; padding-right: 1.5rem; }
-
       .hero-scroll { display: none; }
-
       .project-row { grid-template-columns: 1fr; }
-
       .project-right { text-align: left; }
-
       .project-links { justify-content: flex-start; }
-
       .oss-grid { grid-template-columns: 1fr; }
-
       #nav-clock { display: none; }
-
-      .nav-links { gap: 1.2rem; }
-
+      .nav-links { gap: 1rem; }
     }
-
   </style>
-
 </head>
-
 <body>
-
 <div id="cursor-dot"></div>
-
 <div id="cursor-outline"></div>
-
 <div id="toast"></div>
+<div class="noise-overlay"></div>
+<div id="scroll-progress"></div>
+
 
 <div id="matrix-overlay">
-
   <canvas id="matrix-canvas"></canvas>
-
   <button id="matrix-close" onclick="closeMatrix()">[ ESC ]</button>
-
 </div>
+
 
 <div id="boot">
-
   <div class="boot-name"><span>96qsw</span></div>
-
   <div class="boot-log" id="boot-log">
-
-    <p id="bl1">— init portfolio</p>
-
-    <p id="bl2">— loading projects</p>
-
-    <p id="bl3">— fetching github</p>
-
-    <p id="bl4">— ready</p>
-
+    <p id="bl1">— <span class="t-ok">✓</span> init environment</p>
+    <p id="bl2">— <span class="t-ok">✓</span> loading projects</p>
+    <p id="bl3">— <span class="t-ok">✓</span> fetching github stats</p>
+    <p id="bl4">— <span class="t-ok">✓</span> building interface</p>
+    <p id="bl5">— system ready</p>
   </div>
-
   <div class="boot-bar-wrap" id="boot-bar-wrap">
-
     <div class="boot-bar" id="boot-bar"></div>
-
   </div>
-
 </div>
 
+
 <div id="main">
-
   <nav>
-
-    <div class="nav-logo">96qsw</div>
-
+    <div class="nav-logo">96qsw<span style="color:#2a2a2a">_</span></div>
     <div class="nav-links">
-
       <span id="nav-clock"></span>
-
       <a href="#terminal" data-i18n="nav.terminal">Terminal</a>
-
       <a href="#projects" data-i18n="nav.projects">Projets</a>
-
+      <a href="#skills" data-i18n="nav.skills">Skills</a>
+      <a href="#contact" data-i18n="nav.contact">Contact</a>
       <a href="https://github.com/96qsw" target="_blank">GitHub</a>
-
       <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
-
     </div>
-
   </nav>
 
+
   <div id="hero">
-
-    <p class="hero-eyebrow" data-i18n="hero.eyebrow">Discord bot developer</p>
-
-    <h1 class="hero-title">
-
-      <span class="line"><span>96qsw</span></span>
-
-    </h1>
-
-    <p class="hero-sub">
-
-      <span id="typing-text"></span><span class="cursor-blink"></span>
-
-    </p>
-
-    <div class="hero-ctas">
-
-      <a href="#terminal" class="btn btn-white" data-i18n="hero.cta1">Terminal</a>
-
-      <a href="#projects" class="btn btn-outline" data-i18n="hero.cta2">Projets</a>
-
+    <div class="hero-bg">
+      <div class="hero-bg-grid"></div>
+      <div class="hero-bg-glow"></div>
     </div>
-
+    <div class="hero-stats" id="hero-stats">
+      <div class="hero-stat-item">
+        <div class="hero-stat-num"><span class="counter" data-target="12000" data-suffix="+" data-k="true">12K+</span></div>
+        <div class="hero-stat-label" data-i18n="stat.users">utilisateurs</div>
+      </div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num"><span class="counter" data-target="1200" data-suffix="+" data-k="true">1.2K+</span></div>
+        <div class="hero-stat-label" data-i18n="stat.servers">serveurs</div>
+      </div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num">3</div>
+        <div class="hero-stat-label" data-i18n="stat.repos">repos OSS</div>
+      </div>
+    </div>
+    <p class="hero-eyebrow" data-i18n="hero.eyebrow">Discord bot developer</p>
+    <h1 class="hero-title">
+      <span class="line"><span>96qsw</span></span>
+    </h1>
+    <p class="hero-sub">
+      <span id="typing-text"></span><span class="cursor-blink"></span>
+    </p>
+    <div class="hero-ctas" style="gap:1rem;display:flex;align-items:center;flex-wrap:wrap;">
+      <a href="#terminal" class="btn btn-white" data-i18n="hero.cta1">Terminal</a>
+      <a href="#projects" class="btn btn-outline" data-i18n="hero.cta2">Projets</a>
+      <span class="status-dot"></span><span class="status-text" data-i18n="hero.status">Disponible pour missions</span>
+    </div>
     <div class="hero-scroll">scroll</div>
-
   </div>
 
   <div class="divider"></div>
 
   <section id="terminal">
-
     <div class="section-label" data-i18n="sec.terminal">Terminal</div>
-
     <div class="terminal">
-
       <div class="terminal-bar">
-
-        <div class="dot dot-r"></div>
-
-        <div class="dot dot-y"></div>
-
-        <div class="dot dot-g"></div>
-
-        <span class="terminal-title">96qsw@portfolio:~</span>
-
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <span class="terminal-title">96qsw@portfolio:~ — zsh</span>
         <span class="terminal-hint">ctrl+k</span>
-
       </div>
-
       <div class="terminal-body" id="term-output">
-
         <span class="t-out" id="term-welcome-msg">Bienvenue. Tapez </span><span class="t-accent">help</span><span class="t-out" id="term-welcome-msg2"> pour commencer.</span><br><br>
-
-        <span class="t-prompt">~ </span>
-
+        <span class="t-prompt">❯ </span>
       </div>
-
       <div class="terminal-input-row">
-
-        <span class="t-prompt">~ </span>
-
+        <span class="t-prompt">❯ </span>
         <input class="terminal-input" id="term-input" autocomplete="off" spellcheck="false" placeholder="help">
-
       </div>
-
     </div>
-
   </section>
 
   <div class="divider"></div>
+
 
   <section id="projects">
-
     <div class="section-label" data-i18n="sec.projects">Projets</div>
-
     <div class="projects-list">
-
       <div class="project-row">
-
         <div>
-
           <div class="project-num">01</div>
-
           <div class="project-name">Moon Selfbot</div>
-
+          <div class="project-badge">● LIVE</div>
           <div class="project-desc" data-i18n="p1.desc">Selfbot Discord ultra-complet. Gestion de serveur, jeux intégrés, automatisations intelligentes, support 24/7.</div>
-
           <div class="project-tags-wrap">
-
             <span class="tag">Selfbot</span>
-
             <span class="tag" data-i18n="tag.auto">Automatisation</span>
-
             <span class="tag" data-i18n="tag.games">Jeux</span>
-
+            <span class="tag">Node.js</span>
           </div>
-
         </div>
-
         <div class="project-right">
-
           <div class="project-stat"><span class="counter" data-target="12000" data-suffix="+" data-k="true">12 000+</span> <span data-i18n="stat.users">utilisateurs</span></div>
-
           <div class="project-stat"><strong>v3.2.1</strong></div>
-
           <div class="project-links">
-
             <a href="https://discord.gg/wr2a5qEs46" class="btn btn-white btn-sm" target="_blank" data-i18n="p1.btn">Rejoindre</a>
-
           </div>
-
         </div>
-
       </div>
-
       <div class="project-row">
-
         <div>
-
           <div class="project-num">02</div>
-
           <div class="project-name">Bot Gestions</div>
-
+          <div class="project-badge">● LIVE</div>
           <div class="project-desc" data-i18n="p2.desc">Bot Discord tout-en-un. Modération avancée, système de musique, outils d'administration, personnalisation illimitée.</div>
-
           <div class="project-tags-wrap">
-
             <span class="tag" data-i18n="tag.mod">Modération</span>
-
             <span class="tag" data-i18n="tag.music">Musique</span>
-
             <span class="tag" data-i18n="tag.admin">Administration</span>
-
+            <span class="tag">discord.js</span>
           </div>
-
         </div>
-
         <div class="project-right">
-
           <div class="project-stat"><span class="counter" data-target="1200" data-suffix="+" data-k="true">1 200+</span> <span data-i18n="stat.servers">serveurs</span></div>
-
           <div class="project-stat"><strong>v2.4.0</strong></div>
-
           <div class="project-links">
-
             <a href="https://discord.gg/GnaMJkVYPE" class="btn btn-white btn-sm" target="_blank" data-i18n="p2.btn">Acheter</a>
-
           </div>
-
         </div>
-
       </div>
-
     </div>
-
   </section>
 
   <div class="divider"></div>
 
-  <section>
-
-    <div class="section-label">Open Source</div>
-
-    <div class="oss-grid">
-
-      <a href="https://github.com/96qsw/Base-Bot" class="oss-card" target="_blank" id="card-base-bot">
-
-        <div class="oss-card-num">github.com/96qsw/Base-Bot</div>
-
-        <div class="oss-card-name">Base-Bot</div>
-
-        <div class="oss-card-desc" data-i18n="oss1.desc">Base solide pour créer ton propre bot Discord en JavaScript/TypeScript.</div>
-
-        <div class="oss-card-stats">
-
-          <span class="gh-stat" id="stat-base-stars">
-
-            <svg viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
-
-            —
-
-          </span>
-
-          <span class="gh-stat" id="stat-base-forks">
-
-            <svg viewBox="0 0 16 16"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/></svg>
-
-            —
-
-          </span>
-
-          <span class="gh-stat" id="stat-base-watchers">
-
-            <svg viewBox="0 0 16 16"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.329 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.176 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.124-.967 1.954-2.096 2.366-2.717a.12.12 0 0 0 0-.136c-.412-.621-1.242-1.75-2.366-2.717C10.824 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.124.967-1.954 2.096-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
-
-            —
-
-          </span>
-
+ 
+  <section id="skills">
+    <div class="section-label" data-i18n="sec.skills">Skills</div>
+    <div class="skills-grid">
+      <div>
+        <div class="skill-group-title" data-i18n="skills.dev">Développement</div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">JavaScript / TypeScript</span><span class="skill-pct">95%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" data-pct="95"></div></div>
         </div>
-
-        <span class="oss-arrow">→</span>
-
-      </a>
-
-      <a href="https://github.com/96qsw/SB-Base" class="oss-card" target="_blank" id="card-sb-base">
-
-        <div class="oss-card-num">github.com/96qsw/SB-Base</div>
-
-        <div class="oss-card-name">SB-Base</div>
-
-        <div class="oss-card-desc" data-i18n="oss2.desc">Base avancée pour développer des selfbots Discord avec fonctionnalités premium.</div>
-
-        <div class="oss-card-stats">
-
-          <span class="gh-stat" id="stat-sb-stars">
-
-            <svg viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
-
-            —
-
-          </span>
-
-          <span class="gh-stat" id="stat-sb-forks">
-
-            <svg viewBox="0 0 16 16"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/></svg>
-
-            —
-
-          </span>
-
-          <span class="gh-stat" id="stat-sb-watchers">
-
-            <svg viewBox="0 0 16 16"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.329 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.176 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.124-.967 1.954-2.096 2.366-2.717a.12.12 0 0 0 0-.136c-.412-.621-1.242-1.75-2.366-2.717C10.824 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.124.967-1.954 2.096-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
-
-            —
-
-          </span>
-
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Node.js</span><span class="skill-pct">90%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" data-pct="90"></div></div>
         </div>
-
-        <span class="oss-arrow">→</span>
-
-      </a>
-
-      <a href="https://github.com/96qsw/Bot-integration" class="oss-card" target="_blank" id="card-bot-integration">
-
-        <div class="oss-card-num">github.com/96qsw/Bot-integration</div>
-
-        <div class="oss-card-name">Bot-integration</div>
-
-        <div class="oss-card-desc" data-i18n="oss3.desc">Bot Intégrations.</div>
-
-        <div class="oss-card-stats">
-
-          <span class="gh-stat" id="stat-bi-stars">
-
-            <svg viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>
-
-            —
-
-          </span>
-
-          <span class="gh-stat" id="stat-bi-forks">
-
-            <svg viewBox="0 0 16 16"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/></svg>
-
-            —
-
-          </span>
-
-          <span class="gh-stat" id="stat-bi-watchers">
-
-            <svg viewBox="0 0 16 16"><path d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.329 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.176 11.758 6.527 12.5 8 12.5c1.473 0 2.825-.742 3.955-1.715 1.124-.967 1.954-2.096 2.366-2.717a.12.12 0 0 0 0-.136c-.412-.621-1.242-1.75-2.366-2.717C10.824 4.242 9.473 3.5 8 3.5c-1.473 0-2.825.742-3.955 1.715-1.124.967-1.954 2.096-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z"/></svg>
-
-            —
-
-          </span>
-
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">discord.js</span><span class="skill-pct">98%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" data-pct="98"></div></div>
         </div>
-
-        <span class="oss-arrow">→</span>
-
-      </a>
-
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Python</span><span class="skill-pct">70%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" data-pct="70"></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="skill-group-title" data-i18n="skills.tools">Outils & Autres</div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Git / GitHub</span><span class="skill-pct">88%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" data-pct="88"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">MongoDB / Redis</span><span class="skill-pct">80%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" data-pct="80"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">REST APIs</span><span class="skill-pct">85%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" data-pct="85"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-header"><span class="skill-name">Docker</span><span class="skill-pct">65%</span></div>
+          <div class="skill-bar-bg"><div class="skill-bar-fill" data-pct="65"></div></div>
+        </div>
+      </div>
     </div>
+  </section>
 
+  <div class="divider"></div>
+
+
+  <section id="timeline">
+    <div class="section-label" data-i18n="sec.timeline">Parcours</div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">2021</div>
+        <div class="timeline-title" data-i18n="tl1.title">Premiers bots Discord</div>
+        <div class="timeline-desc" data-i18n="tl1.desc">Début du développement de bots Discord en JavaScript. Apprentissage de discord.js et des fondamentaux Node.js.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">2022</div>
+        <div class="timeline-title" data-i18n="tl2.title">Open Source — Base-Bot & SB-Base</div>
+        <div class="timeline-desc" data-i18n="tl2.desc">Publication des premières bases open-source sur GitHub. Construction d'une communauté de développeurs autour des outils Discord.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">2023</div>
+        <div class="timeline-title" data-i18n="tl3.title">Bot Gestions — 1 000+ serveurs</div>
+        <div class="timeline-desc" data-i18n="tl3.desc">Lancement de Bot Gestions, bot tout-en-un atteignant rapidement 1 000+ serveurs actifs. Passage à TypeScript.</div>
+      </div>
+      <div class="timeline-item active">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">2024–2025</div>
+        <div class="timeline-title" data-i18n="tl4.title">Moon Selfbot — 12 000+ utilisateurs</div>
+        <div class="timeline-desc" data-i18n="tl4.desc">Moon Selfbot devient le projet phare. Architecture refactorisée en v3.x, nouvelles automatisations, croissance massive.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+
+  <section>
+    <div class="section-label">Open Source</div>
+    <div class="oss-grid">
+      <a href="https://github.com/96qsw/Base-Bot" class="oss-card" target="_blank" id="card-base-bot">
+        <div class="oss-card-num">github.com/96qsw/Base-Bot</div>
+        <div class="oss-card-name">Base-Bot</div>
+        <div class="oss-card-desc" data-i18n="oss1.desc">Base solide pour créer ton propre bot Discord en JavaScript/TypeScript.</div>
+        <div class="oss-card-stats">
+          <span class="gh-stat" id="stat-base-stars"><svg viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>—</span>
+          <span class="gh-stat" id="stat-base-forks"><svg viewBox="0 0 16 16"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/></svg>—</span>
+        </div>
+        <span class="oss-arrow">→</span>
+      </a>
+      <a href="https://github.com/96qsw/SB-Base" class="oss-card" target="_blank" id="card-sb-base">
+        <div class="oss-card-num">github.com/96qsw/SB-Base</div>
+        <div class="oss-card-name">SB-Base</div>
+        <div class="oss-card-desc" data-i18n="oss2.desc">Base avancée pour développer des selfbots Discord avec fonctionnalités premium.</div>
+        <div class="oss-card-stats">
+          <span class="gh-stat" id="stat-sb-stars"><svg viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>—</span>
+          <span class="gh-stat" id="stat-sb-forks"><svg viewBox="0 0 16 16"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/></svg>—</span>
+        </div>
+        <span class="oss-arrow">→</span>
+      </a>
+      <a href="https://github.com/96qsw/Bot-integration" class="oss-card" target="_blank" id="card-bot-integration">
+        <div class="oss-card-num">github.com/96qsw/Bot-integration</div>
+        <div class="oss-card-name">Bot-integration</div>
+        <div class="oss-card-desc" data-i18n="oss3.desc">Système d'intégration pour bots Discord.</div>
+        <div class="oss-card-stats">
+          <span class="gh-stat" id="stat-bi-stars"><svg viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg>—</span>
+          <span class="gh-stat" id="stat-bi-forks"><svg viewBox="0 0 16 16"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/></svg>—</span>
+        </div>
+        <span class="oss-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  
+  <section id="contact">
+    <div class="section-label" data-i18n="sec.contact">Contact</div>
+    <div class="contact-grid">
+      <div>
+        <div class="contact-big" data-i18n="contact.big">Travaillons<br>ensemble.</div>
+        <div class="contact-sub" data-i18n="contact.sub">Besoin d'un bot Discord sur mesure ? D'un selfbot premium ? Je suis disponible pour des missions freelance.</div>
+        <a href="#terminal" class="btn btn-accent" data-i18n="contact.cta">Ouvrir le terminal →</a>
+      </div>
+      <div class="contact-links">
+        <a href="https://discord.gg/wr2a5qEs46" target="_blank" class="contact-link-item">
+          <div>
+            <div class="contact-link-label">Discord</div>
+            <div class="contact-link-val">discord.gg/wr2a5qEs46</div>
+          </div>
+          <span class="contact-link-arrow">→</span>
+        </a>
+        <a href="https://github.com/96qsw" target="_blank" class="contact-link-item">
+          <div>
+            <div class="contact-link-label">GitHub</div>
+            <div class="contact-link-val">github.com/96qsw</div>
+          </div>
+          <span class="contact-link-arrow">→</span>
+        </a>
+        <div class="contact-link-item" id="copy-email-contact" onclick="copyEmail()" style="cursor:none;">
+          <div>
+            <div class="contact-link-label" data-i18n="contact.email">Email</div>
+            <div class="contact-link-val">contact@96qsw.dev</div>
+          </div>
+          <span class="contact-link-arrow" id="copy-arrow">⎘</span>
+        </div>
+      </div>
+    </div>
   </section>
 
   <footer>
-
-    <div class="footer-left">© 2025 96qsw</div>
-
+    <div class="footer-left">© 2025 96qsw — <span data-i18n="footer.built">construit à la main</span></div>
     <div class="footer-right">
-
       <a href="https://github.com/96qsw" target="_blank">GitHub</a>
-
       <a href="https://discord.gg/wr2a5qEs46" target="_blank">Discord</a>
-
-      <span class="copy-email" id="copy-email" data-tip="Copier" onclick="copyEmail()"></span>
-
+      <span style="color:#1a1a1a;font-family:var(--mono);font-size:.65rem;" id="footer-visits"></span>
     </div>
-
   </footer>
-
 </div>
 
 <script>
-
+// ── i18n ──
 const T = {
-
   fr: {
-
-    'nav.terminal':'Terminal','nav.projects':'Projets',
-
-    'hero.eyebrow':'Discord bot developer','hero.cta1':'Terminal','hero.cta2':'Projets',
-
-    'sec.terminal':'Terminal','sec.projects':'Projets',
-
+    'nav.terminal':'Terminal','nav.projects':'Projets','nav.skills':'Skills','nav.contact':'Contact',
+    'hero.eyebrow':'Discord bot developer','hero.cta1':'Terminal','hero.cta2':'Projets','hero.status':'Disponible pour missions',
+    'sec.terminal':'Terminal','sec.projects':'Projets','sec.skills':'Skills','sec.timeline':'Parcours','sec.contact':'Contact',
+    'stat.users':'utilisateurs','stat.servers':'serveurs','stat.repos':'repos OSS',
     'p1.desc':'Selfbot Discord ultra-complet. Gestion de serveur, jeux intégrés, automatisations intelligentes, support 24/7.',
-
     'p2.desc':"Bot Discord tout-en-un. Modération avancée, système de musique, outils d'administration, personnalisation illimitée.",
-
     'p1.btn':'Rejoindre','p2.btn':'Acheter',
-
     'tag.auto':'Automatisation','tag.games':'Jeux','tag.mod':'Modération','tag.music':'Musique','tag.admin':'Administration',
-
-    'stat.users':'utilisateurs','stat.servers':'serveurs',
-
     'oss1.desc':'Base solide pour créer ton propre bot Discord en JavaScript/TypeScript.',
-
     'oss2.desc':'Base avancée pour développer des selfbots Discord avec fonctionnalités premium.',
-
-    'oss3.desc':'Système d\'intégration pour bots Discord. Connecte et synchronise facilement plusieurs bots entre eux.',
-
+    'oss3.desc':"Système d'intégration pour bots Discord.",
+    'skills.dev':'Développement','skills.tools':'Outils & Autres',
+    'tl1.title':'Premiers bots Discord','tl1.desc':'Début du développement de bots Discord en JavaScript. Apprentissage de discord.js et des fondamentaux Node.js.',
+    'tl2.title':'Open Source — Base-Bot & SB-Base','tl2.desc':'Publication des premières bases open-source sur GitHub. Construction d\'une communauté de développeurs.',
+    'tl3.title':'Bot Gestions — 1 000+ serveurs','tl3.desc':'Lancement de Bot Gestions atteignant rapidement 1 000+ serveurs actifs. Passage à TypeScript.',
+    'tl4.title':'Moon Selfbot — 12 000+ utilisateurs','tl4.desc':'Moon Selfbot devient le projet phare. Architecture refactorisée en v3.x, nouvelles automatisations.',
+    'contact.big':'Travaillons\nensemble.','contact.sub':'Besoin d\'un bot Discord sur mesure ? Je suis disponible pour des missions freelance.','contact.cta':'Ouvrir le terminal →','contact.email':'Email',
+    'footer.built':'construit à la main',
     phrases:['Développeur de bots Discord.','Créateur de selfbots premium.',"Outils d'automatisation.",'Solutions open-source.'],
-
     welcome:'Bienvenue. Tapez',welcome2:'pour commencer.',
-
-    help:`<span class="t-out">commandes :</span><br><br><span class="t-accent">help</span>       — aide<br><span class="t-accent">projects</span>   — projets<br><span class="t-accent">Moon</span>      — Moon Selfbot<br><span class="t-accent">gestions</span>   — Bot Gestions<br><span class="t-accent">oss</span>        — open source<br><span class="t-accent">social</span>     — réseaux<br><span class="t-accent">whoami</span>     — à propos<br><span class="t-accent">matrix</span>     — ???<br><span class="t-accent">clear</span>      — effacer`,
-
-    projects:`<span class="t-out">projets :</span><br><br><span class="t-accent">Moon Selfbot</span>   v3.2.1 — 12 000+ users<br><span class="t-accent">Bot Gestions</span>    v2.4.0 — 1 200+ serveurs<br><span class="t-accent">Base-Bot</span>        open source<br><span class="t-accent">SB-Base</span>         open source<br><span class="t-accent">Bot-integration</span> open source`,
-
-    Moon:`<span class="t-accent">Moon Selfbot v3.2.1</span><br><span class="t-out">Selfbot Discord ultra-complet.</span><br><br>— Gestion de serveur avancée<br>— Jeux et divertissements<br>— Automatisations intelligentes<br>— Support 24/7<br><br><a href="https://discord.gg/GnaMJkVYPE" class="t-link" target="_blank">discord.gg/GnaMJkVYPE</a>`,
-
-    gestions:`<span class="t-accent">Bot Gestions v2.4.0</span><br><span class="t-out">Bot Discord tout-en-un.</span><br><br>— Modération avancée<br>— Système de musique<br>— Outils d'administration<br>— 1 200+ serveurs<br><br><a href="https://discord.gg/GnaMJkVYPE" class="t-link" target="_blank">discord.gg/GnaMJkVYPE</a>`,
-
-    oss:`<span class="t-accent">Base-Bot</span>        — <a href="https://github.com/96qsw/Base-Bot" class="t-link" target="_blank">github.com/96qsw/Base-Bot</a><br><span class="t-accent">SB-Base</span>         — <a href="https://github.com/96qsw/SB-Base" class="t-link" target="_blank">github.com/96qsw/SB-Base</a><br><span class="t-accent">Bot-integration</span> — <a href="https://github.com/96qsw/Bot-integration" class="t-link" target="_blank">github.com/96qsw/Bot-integration</a>`,
-
-    social:`<a href="https://github.com/96qsw" class="t-link" target="_blank">github.com/96qsw</a><br><a href="https://discord.gg/GnaMJkVYPE" class="t-link" target="_blank">discord.gg/GnaMJkVYPE</a><br><span class="t-dim">contact@96qsw.dev</span>`,
-
-    whoami:`<span class="t-accent">96qsw</span><br><span class="t-out">Développeur de bots Discord.</span><br>Passionné par l'automatisation et les<br>outils open-source pour Discord.`,
-
-    unknown: c=>`<span class="t-dim">commande inconnue : '${c}' — tapez <span class="t-accent">help</span></span>`,
-
-    toast_welcome:'— bienvenue',toast_copied:'— email copié',toast_ctrl:'— ctrl+k → terminal',toast_lang:'— langue : français',copy_tip:'Copier',
-
+    help:`<span class="t-out">commandes disponibles :</span><br><br><span class="t-yellow">help</span>        — aide<br><span class="t-yellow">whoami</span>      — à propos<br><span class="t-yellow">projects</span>    — projets<br><span class="t-yellow">Moon</span>        — Moon Selfbot<br><span class="t-yellow">gestions</span>    — Bot Gestions<br><span class="t-yellow">skills</span>      — compétences<br><span class="t-yellow">oss</span>         — open source<br><span class="t-yellow">social</span>      — réseaux<br><span class="t-yellow">contact</span>     — contact<br><span class="t-yellow">uptime</span>      — stats session<br><span class="t-yellow">matrix</span>      — ???<br><span class="t-yellow">clear</span>       — effacer`,
+    projects:`<span class="t-out">projets actifs :</span><br><br><span class="t-yellow">Moon Selfbot</span>    v3.2.1  <span class="t-ok">✓ live</span>  12 000+ users<br><span class="t-yellow">Bot Gestions</span>    v2.4.0  <span class="t-ok">✓ live</span>  1 200+ serveurs<br><span class="t-yellow">Base-Bot</span>        open source<br><span class="t-yellow">SB-Base</span>         open source<br><span class="t-yellow">Bot-integration</span> open source`,
+    Moon:`<span class="t-yellow">Moon Selfbot v3.2.1</span><br><span class="t-out">Selfbot Discord ultra-complet.</span><br><br>— Gestion de serveur avancée<br>— Jeux et divertissements<br>— Automatisations intelligentes<br>— Support 24/7<br>— 12 000+ utilisateurs<br><br><a href="https://discord.gg/wr2a5qEs46" class="t-link" target="_blank">→ discord.gg/wr2a5qEs46</a>`,
+    gestions:`<span class="t-yellow">Bot Gestions v2.4.0</span><br><span class="t-out">Bot Discord tout-en-un.</span><br><br>— Modération avancée<br>— Système de musique<br>— Outils d'administration<br>— 1 200+ serveurs<br><br><a href="https://discord.gg/GnaMJkVYPE" class="t-link" target="_blank">→ discord.gg/GnaMJkVYPE</a>`,
+    skills:`<span class="t-out">stack technique :</span><br><br>JavaScript/TS  <span class="t-yellow">████████████████████</span> 95%<br>Node.js        <span class="t-yellow">██████████████████</span>   90%<br>discord.js     <span class="t-yellow">████████████████████</span> 98%<br>Python         <span class="t-yellow">██████████████</span>       70%<br>MongoDB        <span class="t-yellow">████████████████</span>     80%<br>Docker         <span class="t-yellow">█████████████</span>        65%`,
+    oss:`<span class="t-yellow">Base-Bot</span>        — <a href="https://github.com/96qsw/Base-Bot" class="t-link" target="_blank">github.com/96qsw/Base-Bot</a><br><span class="t-yellow">SB-Base</span>         — <a href="https://github.com/96qsw/SB-Base" class="t-link" target="_blank">github.com/96qsw/SB-Base</a><br><span class="t-yellow">Bot-integration</span> — <a href="https://github.com/96qsw/Bot-integration" class="t-link" target="_blank">github.com/96qsw/Bot-integration</a>`,
+    social:`<a href="https://github.com/96qsw" class="t-link" target="_blank">github.com/96qsw</a><br><a href="https://discord.gg/wr2a5qEs46" class="t-link" target="_blank">discord.gg/wr2a5qEs46</a><br><span class="t-dim">contact@96qsw.dev</span>`,
+    whoami:`<span class="t-yellow">96qsw</span><br><span class="t-out">Développeur de bots Discord.</span><br>Passionné par l'automatisation<br>et les outils open-source Discord.<br><br>— Discord bot dev depuis 2021<br>— 3 projets open-source<br>— 12 000+ utilisateurs actifs`,
+    contact:`<span class="t-out">contact :</span><br><br>Discord  → <a href="https://discord.gg/wr2a5qEs46" class="t-link" target="_blank">discord.gg/wr2a5qEs46</a><br>GitHub   → <a href="https://github.com/96qsw" class="t-link" target="_blank">github.com/96qsw</a><br>Email    → <span class="t-dim">contact@96qsw.dev</span>`,
+    unknown: c=>`<span class="t-err">commande inconnue : '${c}'</span> — tapez <span class="t-yellow">help</span>`,
+    toast_welcome:'— bienvenue',toast_copied:'— email copié',toast_ctrl:'— ctrl+k → terminal',toast_lang:'— langue : français',
   },
-
   en: {
-
-    'nav.terminal':'Terminal','nav.projects':'Projects',
-
-    'hero.eyebrow':'Discord bot developer','hero.cta1':'Terminal','hero.cta2':'Projects',
-
-    'sec.terminal':'Terminal','sec.projects':'Projects',
-
+    'nav.terminal':'Terminal','nav.projects':'Projects','nav.skills':'Skills','nav.contact':'Contact',
+    'hero.eyebrow':'Discord bot developer','hero.cta1':'Terminal','hero.cta2':'Projects','hero.status':'Available for work',
+    'sec.terminal':'Terminal','sec.projects':'Projects','sec.skills':'Skills','sec.timeline':'Journey','sec.contact':'Contact',
+    'stat.users':'users','stat.servers':'servers','stat.repos':'OSS repos',
     'p1.desc':'Full-featured Discord selfbot. Server management, built-in games, smart automations, 24/7 support.',
-
     'p2.desc':'All-in-one Discord bot. Advanced moderation, music system, admin tools, unlimited customization.',
-
     'p1.btn':'Join','p2.btn':'Buy',
-
     'tag.auto':'Automation','tag.games':'Games','tag.mod':'Moderation','tag.music':'Music','tag.admin':'Admin',
-
-    'stat.users':'users','stat.servers':'servers',
-
     'oss1.desc':'Solid base to create your own Discord bot in JavaScript/TypeScript.',
-
     'oss2.desc':'Advanced base to build Discord selfbots with premium features.',
-
-    'oss3.desc':'Integration system for Discord bots. Easily connect and synchronize multiple bots together.',
-
+    'oss3.desc':'Integration system for Discord bots.',
+    'skills.dev':'Development','skills.tools':'Tools & Other',
+    'tl1.title':'First Discord bots','tl1.desc':'Started Discord bot development in JavaScript. Learning discord.js and Node.js fundamentals.',
+    'tl2.title':'Open Source — Base-Bot & SB-Base','tl2.desc':'Published first open-source bases on GitHub. Built a community around Discord developer tools.',
+    'tl3.title':'Bot Gestions — 1,000+ servers','tl3.desc':'Launched Bot Gestions, quickly reaching 1,000+ active servers. Migrated to TypeScript.',
+    'tl4.title':'Moon Selfbot — 12,000+ users','tl4.desc':'Moon Selfbot becomes the flagship project. Architecture refactored to v3.x, massive growth.',
+    'contact.big':'Let\'s work\ntogether.','contact.sub':'Need a custom Discord bot or premium selfbot? Available for freelance missions.','contact.cta':'Open terminal →','contact.email':'Email',
+    'footer.built':'handcrafted',
     phrases:['Discord bot developer.','Premium selfbot creator.','Automation tools builder.','Open-source solutions.'],
-
     welcome:'Welcome. Type',welcome2:'to get started.',
-
-    help:`<span class="t-out">commands:</span><br><br><span class="t-accent">help</span>       — help<br><span class="t-accent">projects</span>   — projects<br><span class="t-accent">Moon</span>      — Moon Selfbot<br><span class="t-accent">gestions</span>   — Bot Gestions<br><span class="t-accent">oss</span>        — open source<br><span class="t-accent">social</span>     — socials<br><span class="t-accent">whoami</span>     — about<br><span class="t-accent">matrix</span>     — ???<br><span class="t-accent">clear</span>      — clear`,
-
-    projects:`<span class="t-out">projects:</span><br><br><span class="t-accent">Moon Selfbot</span>   v3.2.1 — 12,000+ users<br><span class="t-accent">Bot Gestions</span>    v2.4.0 — 1,200+ servers<br><span class="t-accent">Base-Bot</span>        open source<br><span class="t-accent">SB-Base</span>         open source<br><span class="t-accent">Bot-integration</span> open source`,
-
-    Moon:`<span class="t-accent">Moon Selfbot v3.2.1</span><br><span class="t-out">Full-featured Discord selfbot.</span><br><br>— Advanced server management<br>— Built-in games & entertainment<br>— Smart automations<br>— 24/7 support<br><br><a href="https://discord.gg/GnaMJkVYPE" class="t-link" target="_blank">discord.gg/GnaMJkVYPE</a>`,
-
-    gestions:`<span class="t-accent">Bot Gestions v2.4.0</span><br><span class="t-out">All-in-one Discord bot.</span><br><br>— Advanced moderation<br>— Music system<br>— Admin tools<br>— 1,200+ servers<br><br><a href="https://discord.gg/GnaMJkVYPE" class="t-link" target="_blank">discord.gg/GnaMJkVYPE</a>`,
-
-    oss:`<span class="t-accent">Base-Bot</span>        — <a href="https://github.com/96qsw/Base-Bot" class="t-link" target="_blank">github.com/96qsw/Base-Bot</a><br><span class="t-accent">SB-Base</span>         — <a href="https://github.com/96qsw/SB-Base" class="t-link" target="_blank">github.com/96qsw/SB-Base</a><br><span class="t-accent">Bot-integration</span> — <a href="https://github.com/96qsw/Bot-integration" class="t-link" target="_blank">github.com/96qsw/Bot-integration</a>`,
-
-    social:`<a href="https://github.com/96qsw" class="t-link" target="_blank">github.com/96qsw</a><br><a href="https://discord.gg/GnaMJkVYPE" class="t-link" target="_blank">discord.gg/GnaMJkVYPE</a><br><span class="t-dim">contact@96qsw.dev</span>`,
-
-    whoami:`<span class="t-accent">96qsw</span><br><span class="t-out">Discord bot developer.</span><br>Passionate about automation and<br>open-source tools for Discord.`,
-
-    unknown: c=>`<span class="t-dim">unknown command: '${c}' — type <span class="t-accent">help</span></span>`,
-
-    toast_welcome:'— welcome',toast_copied:'— email copied',toast_ctrl:'— ctrl+k → terminal',toast_lang:'— language: english',copy_tip:'Copy',
-
+    help:`<span class="t-out">available commands:</span><br><br><span class="t-yellow">help</span>        — help<br><span class="t-yellow">whoami</span>      — about<br><span class="t-yellow">projects</span>    — projects<br><span class="t-yellow">Moon</span>        — Moon Selfbot<br><span class="t-yellow">gestions</span>    — Bot Gestions<br><span class="t-yellow">skills</span>      — skills<br><span class="t-yellow">oss</span>         — open source<br><span class="t-yellow">social</span>      — socials<br><span class="t-yellow">contact</span>     — contact<br><span class="t-yellow">uptime</span>      — session stats<br><span class="t-yellow">matrix</span>      — ???<br><span class="t-yellow">clear</span>       — clear`,
+    projects:`<span class="t-out">active projects:</span><br><br><span class="t-yellow">Moon Selfbot</span>    v3.2.1  <span class="t-ok">✓ live</span>  12,000+ users<br><span class="t-yellow">Bot Gestions</span>    v2.4.0  <span class="t-ok">✓ live</span>  1,200+ servers<br><span class="t-yellow">Base-Bot</span>        open source<br><span class="t-yellow">SB-Base</span>         open source<br><span class="t-yellow">Bot-integration</span> open source`,
+    Moon:`<span class="t-yellow">Moon Selfbot v3.2.1</span><br><span class="t-out">Full-featured Discord selfbot.</span><br><br>— Advanced server management<br>— Built-in games & entertainment<br>— Smart automations<br>— 24/7 support<br>— 12,000+ users<br><br><a href="https://discord.gg/wr2a5qEs46" class="t-link" target="_blank">→ discord.gg/wr2a5qEs46</a>`,
+    gestions:`<span class="t-yellow">Bot Gestions v2.4.0</span><br><span class="t-out">All-in-one Discord bot.</span><br><br>— Advanced moderation<br>— Music system<br>— Admin tools<br>— 1,200+ servers<br><br><a href="https://discord.gg/GnaMJkVYPE" class="t-link" target="_blank">→ discord.gg/GnaMJkVYPE</a>`,
+    skills:`<span class="t-out">tech stack:</span><br><br>JavaScript/TS  <span class="t-yellow">████████████████████</span> 95%<br>Node.js        <span class="t-yellow">██████████████████</span>   90%<br>discord.js     <span class="t-yellow">████████████████████</span> 98%<br>Python         <span class="t-yellow">██████████████</span>       70%<br>MongoDB        <span class="t-yellow">████████████████</span>     80%<br>Docker         <span class="t-yellow">█████████████</span>        65%`,
+    oss:`<span class="t-yellow">Base-Bot</span>        — <a href="https://github.com/96qsw/Base-Bot" class="t-link" target="_blank">github.com/96qsw/Base-Bot</a><br><span class="t-yellow">SB-Base</span>         — <a href="https://github.com/96qsw/SB-Base" class="t-link" target="_blank">github.com/96qsw/SB-Base</a><br><span class="t-yellow">Bot-integration</span> — <a href="https://github.com/96qsw/Bot-integration" class="t-link" target="_blank">github.com/96qsw/Bot-integration</a>`,
+    social:`<a href="https://github.com/96qsw" class="t-link" target="_blank">github.com/96qsw</a><br><a href="https://discord.gg/wr2a5qEs46" class="t-link" target="_blank">discord.gg/wr2a5qEs46</a><br><span class="t-dim">contact@96qsw.dev</span>`,
+    whoami:`<span class="t-yellow">96qsw</span><br><span class="t-out">Discord bot developer.</span><br>Passionate about automation<br>and open-source tools for Discord.<br><br>— Discord bot dev since 2021<br>— 3 open-source projects<br>— 12,000+ active users`,
+    contact:`<span class="t-out">contact:</span><br><br>Discord  → <a href="https://discord.gg/wr2a5qEs46" class="t-link" target="_blank">discord.gg/wr2a5qEs46</a><br>GitHub   → <a href="https://github.com/96qsw" class="t-link" target="_blank">github.com/96qsw</a><br>Email    → <span class="t-dim">contact@96qsw.dev</span>`,
+    unknown: c=>`<span class="t-err">unknown command: '${c}'</span> — type <span class="t-yellow">help</span>`,
+    toast_welcome:'— welcome',toast_copied:'— email copied',toast_ctrl:'— ctrl+k → terminal',toast_lang:'— language: english',
   }
-
 };
 
 let lang = 'fr';
-
 function tr(k) { return T[lang][k] || k; }
-
 function applyLang() {
-
-  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = tr(el.dataset.i18n); });
-
-  document.getElementById('lang-btn').textContent = lang === 'fr' ? 'EN' : 'FR';
-
-  document.getElementById('copy-email').dataset.tip = tr('copy_tip');
-
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const txt = tr(el.dataset.i18n);
+    if (el.tagName==='DIV'||el.tagName==='P'||el.tagName==='SPAN'||el.tagName==='A') el.textContent = txt;
+  });
+  document.getElementById('lang-btn').textContent = lang==='fr'?'EN':'FR';
   document.documentElement.lang = lang;
-
-  const wm = document.getElementById('term-welcome-msg');
-
-  const wm2 = document.getElementById('term-welcome-msg2');
-
-  if (wm) wm.textContent = tr('welcome') + ' ';
-
-  if (wm2) wm2.textContent = ' ' + tr('welcome2');
-
+  const wm=document.getElementById('term-welcome-msg'), wm2=document.getElementById('term-welcome-msg2');
+  if(wm) wm.textContent=tr('welcome')+' ';
+  if(wm2) wm2.textContent=' '+tr('welcome2');
 }
-
 function toggleLang() {
-
-  lang = lang === 'fr' ? 'en' : 'fr';
-
-  applyLang();
-
-  restartTyping();
-
-  showToast(tr('toast_lang'));
-
+  lang=lang==='fr'?'en':'fr';
+  applyLang(); restartTyping(); showToast(tr('toast_lang'));
 }
 
-const dot = document.getElementById('cursor-dot');
-
-const ring = document.getElementById('cursor-outline');
-
-let mouseX = -200, mouseY = -200;
-
-let ringX = -200, ringY = -200;
-
-document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-
-document.addEventListener('mousedown', () => ring.classList.add('is-clicking'));
-
-document.addEventListener('mouseup', () => ring.classList.remove('is-clicking'));
-
-document.addEventListener('mouseover', e => {
-
-  const hoverable = e.target.closest('a, button, .copy-email, .oss-card');
-
-  dot.classList.toggle('is-hovering', !!hoverable);
-
-  ring.classList.toggle('is-hovering', !!hoverable);
-
+// ── Cursor ──
+const dot=document.getElementById('cursor-dot'), ring=document.getElementById('cursor-outline');
+let mouseX=-200, mouseY=-200, ringX=-200, ringY=-200;
+document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
+document.addEventListener('mousedown',()=>ring.classList.add('is-clicking'));
+document.addEventListener('mouseup',()=>ring.classList.remove('is-clicking'));
+document.addEventListener('mouseover',e=>{
+  const h=e.target.closest('a,button,.copy-email,.oss-card,.contact-link-item');
+  dot.classList.toggle('is-hovering',!!h); ring.classList.toggle('is-hovering',!!h);
 });
-
-(function animateCursor() {
-
-  dot.style.left = mouseX + 'px';
-
-  dot.style.top  = mouseY + 'px';
-
-  ringX += (mouseX - ringX) * 0.12;
-
-  ringY += (mouseY - ringY) * 0.12;
-
-  ring.style.left = ringX + 'px';
-
-  ring.style.top  = ringY + 'px';
-
-  requestAnimationFrame(animateCursor);
-
+(function animCursor(){
+  dot.style.left=mouseX+'px'; dot.style.top=mouseY+'px';
+  ringX+=(mouseX-ringX)*.12; ringY+=(mouseY-ringY)*.12;
+  ring.style.left=ringX+'px'; ring.style.top=ringY+'px';
+  requestAnimationFrame(animCursor);
 })();
 
-let toastTimer;
-
-function showToast(msg, dur = 2600) {
-
-  const el = document.getElementById('toast');
-
-  clearTimeout(toastTimer);
-
-  el.textContent = msg;
-
-  el.classList.add('show');
-
-  toastTimer = setTimeout(() => el.classList.remove('show'), dur);
-
-}
-
-function tick() {
-
-  const n = new Date(), pad = v => String(v).padStart(2,'0');
-
-  document.getElementById('nav-clock').textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
-
-}
-
-tick(); setInterval(tick, 1000);
-
-function copyEmail() {
-
-  navigator.clipboard.writeText('contact@96qsw.dev').catch(()=>{});
-
-  showToast(tr('toast_copied'));
-
-}
-
-function animCounter(el) {
-
-  const target = +el.dataset.target, useK = el.dataset.k === 'true', suffix = el.dataset.suffix || '';
-
-  const dur = 1400, start = performance.now();
-
-  const fmt = v => useK ? Math.floor(v/1000).toFixed(0)+' 000'+suffix : Math.floor(v)+suffix;
-
-  function frame(now) {
-
-    const p = Math.min((now-start)/dur,1), e = 1-Math.pow(1-p,3);
-
-    el.textContent = fmt(e*target);
-
-    if (p<1) requestAnimationFrame(frame); else el.textContent = fmt(target);
-
-  }
-
-  requestAnimationFrame(frame);
-
-}
-
-const obs = new IntersectionObserver(entries => entries.forEach(e => {
-
-  if (e.isIntersecting) { animCounter(e.target); obs.unobserve(e.target); }
-
-}), { threshold: 0.5 });
-
-async function fetchGhStats() {
-
-  const repos = [
-
-    { repo: 'Base-Bot',        stars: 'stat-base-stars', forks: 'stat-base-forks', watchers: 'stat-base-watchers' },
-
-    { repo: 'SB-Base',         stars: 'stat-sb-stars',   forks: 'stat-sb-forks',   watchers: 'stat-sb-watchers'   },
-
-    { repo: 'Bot-integration', stars: 'stat-bi-stars',   forks: 'stat-bi-forks',   watchers: 'stat-bi-watchers'   },
-
-  ];
-
-  for (const r of repos) {
-
-    try {
-
-      const res = await fetch(`https://api.github.com/repos/96qsw/${r.repo}`);
-
-      if (!res.ok) continue;
-
-      const d = await res.json();
-
-      const setEl = (id, val, suffix='') => {
-
-        const el = document.getElementById(id);
-
-        if (el) el.lastChild.textContent = ' ' + (val >= 1000 ? (val/1000).toFixed(1)+'k' : val) + suffix;
-
-      };
-
-      setEl(r.stars,    d.stargazers_count);
-
-      setEl(r.forks,    d.forks_count);
-
-      setEl(r.watchers, d.watchers_count);
-
-    } catch(_) {}
-
-  }
-
-}
-
-let typingStop = false;
-
-function startTyping() {
-
-  const el = document.getElementById('typing-text');
-
-  const phrases = tr('phrases');
-
-  let pi=0, ci=0, del=false;
-
-  typingStop = false;
-
-  function step() {
-
-    if (typingStop) return;
-
-    const p = phrases[pi];
-
-    if (!del) el.textContent = p.slice(0,++ci);
-
-    else      el.textContent = p.slice(0,--ci);
-
-    if (!del && ci===p.length)  { del=true; setTimeout(step,1300); return; }
-
-    if (del  && ci===0)         { del=false; pi=(pi+1)%phrases.length; setTimeout(step,400); return; }
-
-    setTimeout(step, del?35:68);
-
-  }
-
-  step();
-
-}
-
-function restartTyping() { typingStop=true; setTimeout(()=>startTyping(),400); }
-
-document.addEventListener('DOMContentLoaded', () => {
-
-  const name  = document.querySelector('.boot-name span');
-
-  const log   = document.getElementById('boot-log');
-
-  const bwrap = document.getElementById('boot-bar-wrap');
-
-  const bar   = document.getElementById('boot-bar');
-
-  setTimeout(() => name.classList.add('up'), 100);
-
-  setTimeout(() => { log.classList.add('show'); bwrap.classList.add('show'); }, 600);
-
-  ['bl1','bl2','bl3','bl4'].forEach((id,i) =>
-
-    setTimeout(() => document.getElementById(id).classList.add('visible'), 700+i*300));
-
-  let p=0;
-
-  const iv = setInterval(() => { p=Math.min(p+Math.random()*12,92); bar.style.width=p+'%'; }, 180);
-
-  setTimeout(() => {
-
-    clearInterval(iv); bar.style.width='100%';
-
-    setTimeout(() => {
-
-      document.getElementById('boot').classList.add('out');
-
-      setTimeout(() => {
-
-        document.getElementById('boot').style.display='none';
-
-        document.getElementById('main').classList.add('visible');
-
-        document.querySelectorAll('.hero-title .line span').forEach((el,i) =>
-
-          setTimeout(()=>el.classList.add('up'),i*120));
-
-        startTyping();
-
-        initTerminal();
-
-        document.querySelectorAll('.counter').forEach(el=>obs.observe(el));
-
-        fetchGhStats();
-
-        setTimeout(()=>showToast(tr('toast_welcome')),900);
-
-        setTimeout(()=>showToast(tr('toast_ctrl')),4200);
-
-      },600);
-
-    },400);
-
-  },2600);
-
+// ── Scroll progress ──
+window.addEventListener('scroll',()=>{
+  const p=window.scrollY/(document.documentElement.scrollHeight-window.innerHeight);
+  document.getElementById('scroll-progress').style.width=(p*100)+'%';
 });
 
-function initTerminal() {
-
-  const out = document.getElementById('term-output');
-
-  const inp = document.getElementById('term-input');
-
-  let hist=[], hi=-1;
-
-  const CMDS = {
-
-    help:()=>tr('help'), projects:()=>tr('projects'), Moon:()=>tr('Moon'),
-
-    gestions:()=>tr('gestions'), oss:()=>tr('oss'), social:()=>tr('social'), whoami:()=>tr('whoami'),
-
-    sudo:()=>'<span class="t-dim">nice try.</span>',
-
-    exit:()=>'<span class="t-dim">you can\'t leave.</span>',
-
-    matrix:()=>{ setTimeout(openMatrix,200); return '<span class="t-dim">initializing...</span>'; },
-
-    clear:()=>'CLEAR',
-
-  };
-
-  function exec(raw) {
-
-    hist.push(raw); hi=hist.length;
-
-    const key=raw.toLowerCase().trim();
-
-    if (key==='clear') { out.innerHTML='<span class="t-prompt">~ </span>'; inp.value=''; return; }
-
-    const res = CMDS[key] ? CMDS[key]() : T[lang].unknown(raw);
-
-    out.innerHTML=out.innerHTML.trimEnd();
-
-    out.innerHTML+=`<span class="t-cmd">${raw}</span><br>`;
-
-    if (res) out.innerHTML+=res+'<br>';
-
-    out.innerHTML+='<br><span class="t-prompt">~ </span>';
-
-    out.scrollTop=out.scrollHeight;
-
-    inp.value='';
-
-  }
-
-  inp.addEventListener('keydown', e => {
-
-    if (e.key==='Enter' && inp.value.trim()) exec(inp.value.trim());
-
-    else if (e.key==='ArrowUp')   { e.preventDefault(); if(hi>0) inp.value=hist[--hi]; }
-
-    else if (e.key==='ArrowDown') { e.preventDefault(); hi<hist.length-1?inp.value=hist[++hi]:(hi=hist.length,inp.value=''); }
-
-  });
-
-  document.addEventListener('keydown', e => {
-
-    if ((e.ctrlKey||e.metaKey)&&e.key==='k') {
-
-      e.preventDefault();
-
-      document.getElementById('terminal').scrollIntoView({behavior:'smooth'});
-
-      setTimeout(()=>inp.focus(),500);
-
-    }
-
-    if (e.key==='Escape') closeMatrix();
-
-  });
-
+// ── Toast ──
+let toastTimer;
+function showToast(msg,dur=2600){
+  const el=document.getElementById('toast'); clearTimeout(toastTimer);
+  el.textContent=msg; el.classList.add('show');
+  toastTimer=setTimeout(()=>el.classList.remove('show'),dur);
 }
+
+// ── Clock ──
+function tick(){
+  const n=new Date(),pad=v=>String(v).padStart(2,'0');
+  document.getElementById('nav-clock').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+}
+tick(); setInterval(tick,1000);
+
+// ── Email copy ──
+function copyEmail(){
+  navigator.clipboard.writeText('contact@96qsw.dev').catch(()=>{});
+  document.getElementById('copy-arrow').textContent='✓';
+  setTimeout(()=>document.getElementById('copy-arrow').textContent='⎘',2000);
+  showToast(tr('toast_copied'));
+}
+
+// ── Counters ──
+function animCounter(el){
+  const target=+el.dataset.target, useK=el.dataset.k==='true', suffix=el.dataset.suffix||'';
+  const dur=1400, start=performance.now();
+  const fmt=v=>useK?(v>=1000?(v/1000).toFixed(0)+'K'+suffix:Math.floor(v)+suffix):Math.floor(v)+suffix;
+  function frame(now){
+    const p=Math.min((now-start)/dur,1), e=1-Math.pow(1-p,3);
+    el.textContent=fmt(e*target);
+    if(p<1)requestAnimationFrame(frame);else el.textContent=fmt(target);
+  }
+  requestAnimationFrame(frame);
+}
+const counterObs=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting){animCounter(e.target);counterObs.unobserve(e.target);}
+}),{threshold:.5});
+
+// ── Skills ──
+const skillObs=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting){
+    const fill=e.target;
+    const pct=fill.dataset.pct;
+    setTimeout(()=>{
+      fill.style.width=pct+'%';
+      fill.classList.add('filled');
+    },100);
+    skillObs.unobserve(fill);
+  }
+}),{threshold:.3});
+
+// ── GitHub stats ──
+async function fetchGhStats(){
+  const repos=[
+    {repo:'Base-Bot',stars:'stat-base-stars',forks:'stat-base-forks'},
+    {repo:'SB-Base',stars:'stat-sb-stars',forks:'stat-sb-forks'},
+    {repo:'Bot-integration',stars:'stat-bi-stars',forks:'stat-bi-forks'},
+  ];
+  for(const r of repos){
+    try{
+      const res=await fetch(`https://api.github.com/repos/96qsw/${r.repo}`);
+      if(!res.ok)continue;
+      const d=await res.json();
+      const setEl=(id,val)=>{
+        const el=document.getElementById(id);
+        if(el)el.lastChild.textContent=' '+(val>=1000?(val/1000).toFixed(1)+'k':val);
+      };
+      setEl(r.stars,d.stargazers_count);
+      setEl(r.forks,d.forks_count);
+    }catch(_){}
+  }
+}
+
+// ── Typing ──
+let typingStop=false;
+function startTyping(){
+  const el=document.getElementById('typing-text');
+  const phrases=tr('phrases');
+  let pi=0,ci=0,del=false; typingStop=false;
+  function step(){
+    if(typingStop)return;
+    const p=phrases[pi];
+    if(!del)el.textContent=p.slice(0,++ci);
+    else    el.textContent=p.slice(0,--ci);
+    if(!del&&ci===p.length){del=true;setTimeout(step,1300);return;}
+    if(del&&ci===0){del=false;pi=(pi+1)%phrases.length;setTimeout(step,400);return;}
+    setTimeout(step,del?35:68);
+  }
+  step();
+}
+function restartTyping(){typingStop=true;setTimeout(()=>startTyping(),400);}
+
+// ── Session uptime ──
+const sessionStart=Date.now();
+function getUptime(){
+  const s=Math.floor((Date.now()-sessionStart)/1000);
+  const m=Math.floor(s/60), sec=s%60;
+  return `${m}m ${sec}s`;
+}
+
+// ── Terminal ──
+function initTerminal(){
+  const out=document.getElementById('term-output');
+  const inp=document.getElementById('term-input');
+  let hist=[],hi=-1;
+  const CMDS={
+    help:()=>tr('help'), projects:()=>tr('projects'), Moon:()=>tr('Moon'),
+    moon:()=>tr('Moon'), gestions:()=>tr('gestions'), oss:()=>tr('oss'),
+    social:()=>tr('social'), whoami:()=>tr('whoami'), skills:()=>tr('skills'),
+    contact:()=>tr('contact'),
+    uptime:()=>`<span class="t-out">session uptime:</span> <span class="t-yellow">${getUptime()}</span><br><span class="t-dim">depuis le chargement de la page</span>`,
+    sudo:()=>'<span class="t-err">permission denied</span>',
+    exit:()=>'<span class="t-dim">you can\'t leave. not yet.</span>',
+    ls:()=>`<span class="t-yellow">projects/</span>  <span class="t-yellow">skills/</span>  <span class="t-yellow">oss/</span>  <span class="t-dim">README.md</span>`,
+    pwd:()=>'<span class="t-dim">/home/96qsw/portfolio</span>',
+    date:()=>`<span class="t-dim">${new Date().toLocaleString(lang==='fr'?'fr-FR':'en-GB')}</span>`,
+    matrix:()=>{setTimeout(openMatrix,200);return '<span class="t-dim">loading matrix... good luck getting out</span>';},
+    clear:()=>'CLEAR',
+  };
+  function exec(raw){
+    hist.push(raw);hi=hist.length;
+    const key=raw.toLowerCase().trim();
+    if(key==='clear'){out.innerHTML='<span class="t-prompt">❯ </span>';inp.value='';return;}
+    const res=CMDS[key]?CMDS[key]():CMDS[raw.trim()]?CMDS[raw.trim()]():T[lang].unknown(raw);
+    out.innerHTML=out.innerHTML.trimEnd();
+    out.innerHTML+=`<span class="t-yellow">${raw}</span><br>`;
+    if(res)out.innerHTML+=res+'<br>';
+    out.innerHTML+='<br><span class="t-prompt">❯ </span>';
+    out.scrollTop=out.scrollHeight;
+    inp.value='';
+  }
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&inp.value.trim())exec(inp.value.trim());
+    else if(e.key==='ArrowUp'){e.preventDefault();if(hi>0)inp.value=hist[--hi];}
+    else if(e.key==='ArrowDown'){e.preventDefault();hi<hist.length-1?inp.value=hist[++hi]:(hi=hist.length,inp.value='');}
+  });
+  document.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key==='k'){
+      e.preventDefault();
+      document.getElementById('terminal').scrollIntoView({behavior:'smooth'});
+      setTimeout(()=>inp.focus(),500);
+    }
+    if(e.key==='Escape')closeMatrix();
+  });
+}
+
+// ── Boot ──
+document.addEventListener('DOMContentLoaded',()=>{
+  const name=document.querySelector('.boot-name span');
+  const log=document.getElementById('boot-log');
+  const bwrap=document.getElementById('boot-bar-wrap');
+  const bar=document.getElementById('boot-bar');
+  setTimeout(()=>name.classList.add('up'),100);
+  setTimeout(()=>{log.classList.add('show');bwrap.classList.add('show');},600);
+  ['bl1','bl2','bl3','bl4','bl5'].forEach((id,i)=>
+    setTimeout(()=>document.getElementById(id).classList.add('visible'),700+i*320));
+  let p=0;
+  const iv=setInterval(()=>{p=Math.min(p+Math.random()*10,92);bar.style.width=p+'%';},180);
+  setTimeout(()=>{
+    clearInterval(iv);bar.style.width='100%';
+    setTimeout(()=>{
+      document.getElementById('boot').classList.add('out');
+      setTimeout(()=>{
+        document.getElementById('boot').style.display='none';
+        document.getElementById('main').classList.add('visible');
+        document.querySelectorAll('.hero-title .line span').forEach((el,i)=>
+          setTimeout(()=>el.classList.add('up'),i*120));
+        startTyping();
+        initTerminal();
+        document.querySelectorAll('.counter').forEach(el=>counterObs.observe(el));
+        document.querySelectorAll('.skill-bar-fill').forEach(el=>skillObs.observe(el));
+        fetchGhStats();
+        setTimeout(()=>showToast(tr('toast_welcome')),900);
+        setTimeout(()=>showToast(tr('toast_ctrl')),4500);
+      },600);
+    },400);
+  },2900);
+});
+
 
 let matIv;
-
-function openMatrix() {
-
-  const ov=document.getElementById('matrix-overlay'), canvas=document.getElementById('matrix-canvas');
-
+function openMatrix(){
+  const ov=document.getElementById('matrix-overlay'),canvas=document.getElementById('matrix-canvas');
   ov.style.display='block';
-
-  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-
-  const ctx=canvas.getContext('2d'), cols=Math.floor(canvas.width/14);
-
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const ctx=canvas.getContext('2d'),cols=Math.floor(canvas.width/14);
   const drops=Array(cols).fill(1);
-
-  const chars='96qswABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%アイウエオカキクケコ';
-
+  const chars='96qswABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*アイウエオカキクケコ';
   matIv=setInterval(()=>{
-
-    ctx.fillStyle='rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    ctx.fillStyle='#0f0'; ctx.font='13px DM Mono,monospace';
-
+    ctx.fillStyle='rgba(0,0,0,0.05)';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#0f0';ctx.font='13px DM Mono,monospace';
     drops.forEach((y,i)=>{
-
       ctx.fillText(chars[Math.floor(Math.random()*chars.length)],i*14,y*14);
-
-      if(y*14>canvas.height&&Math.random()>.975) drops[i]=0;
-
+      if(y*14>canvas.height&&Math.random()>.975)drops[i]=0;
       drops[i]++;
-
     });
-
   },40);
-
 }
-
-function closeMatrix() {
-
+function closeMatrix(){
   const ov=document.getElementById('matrix-overlay');
-
-  if(!ov||ov.style.display==='none') return;
-
-  clearInterval(matIv); ov.style.display='none';
-
+  if(!ov||ov.style.display==='none')return;
+  clearInterval(matIv);ov.style.display='none';
 }
-
 </script>
-
 </body>
-
 </html>
